@@ -2,6 +2,7 @@ using DataAccessLayer;
 using BusinessLogicLayer;
 using FluentValidation.AspNetCore;
 using ProductMicroServiceApi.MiddleWare;
+
 var builder = WebApplication.CreateBuilder(args);
 
 //Add Dal And bil Services
