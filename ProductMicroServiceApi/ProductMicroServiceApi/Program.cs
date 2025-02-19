@@ -2,6 +2,7 @@ using DataAccessLayer;
 using BusinessLogicLayer;
 using FluentValidation.AspNetCore;
 using ProductMicroServiceApi.MiddleWare;
+using BusinessLogicLayer.Mapper;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +11,7 @@ builder.Services.AddDataAccessLayer(builder.Configuration);
 builder.Services.AddBussnessLogicLayer();
 
 builder.Services.AddControllers();
+builder.Services.AddAutoMapper(typeof(ApplicationUserMappingProfile).Assembly);
 builder.Services.AddFluentValidationAutoValidation();
 
 var app = builder.Build();
