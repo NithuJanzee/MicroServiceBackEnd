@@ -75,7 +75,14 @@ namespace ProductMicroServiceApi.Controller
         }
 
         //Get Products By Condtion
-
+        [HttpGet("GetProductsByCondition")]
+        public async Task<IActionResult> GetProductsByCondition(string SearchString)
+        {
+            List<ProductResponse?> ProductsByName = await _ProductService.GetProductsByCondition(temp => temp.ProductName != null && temp.ProductName.Contains(SearchString, StringComparison.OrdinalIgnoreCase));
+            List<ProductResponse?> ProductByCategory = await _ProductService.GetProductsByCondition(temp => temp.Category != null && temp.Category.Contains(SearchString, StringComparison.OrdinalIgnoreCase));
+            var products = ProductsByName.Union(ProductByCategory);
+            return Ok(products);
+        }
         //Update Products
     }
 }
