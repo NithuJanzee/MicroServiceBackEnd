@@ -4,6 +4,7 @@ using BusinessLogicLayer.DTO;
 using BusinessLogicLayer.ServiceContracts;
 using BusinessLogicLayer.Validators;
 using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MySqlX.XDevAPI.Common;
@@ -84,5 +85,23 @@ namespace ProductMicroServiceApi.Controller
             return Ok(products);
         }
         //Update Products
+        [HttpPut("UpdateProducts")]
+        public async Task<IActionResult>UpdateProduct(ProductUpdateRequest productUpdate)
+        {
+            FluentValidation.Results.ValidationResult validationResult = await _UpdateValidator.ValidateAsync(productUpdate);
+            if (!validationResult.IsValid)
+            {
+                Dictionary<string, string[]> errors = validationResult.Errors
+                  .GroupBy(temp => temp.PropertyName)
+                  .ToDictionary(grp => grp.Key,
+                    grp => grp.Select(err => err.ErrorMessage).ToArray());
+                var problemDetails = new ValidationProblemDetails(errors);
+                return ValidationProblem(problemDetails);
+            }
+
+            var UpdateProduct = await _ProductService.UpdateProduct(productUpdate);
+            if (UpdateProduct != null) return Ok(UpdateProduct);
+            return BadRequest(new { Message = "Failed to Add Product" });
+        }
     }
 }
