@@ -13,9 +13,18 @@ builder.Services.AddBussnessLogicLayer();
 builder.Services.AddControllers();
 builder.Services.AddAutoMapper(typeof(ApplicationUserMappingProfile).Assembly);
 builder.Services.AddFluentValidationAutoValidation();
-
+// add api explorer service
+builder.Services.AddEndpointsApiExplorer();
+//add swagger service
+builder.Services.AddSwaggerGen();
 var app = builder.Build();
 app.UseMiddleware<ExeptionHandlingMiddleWare>();
+app.UseRouting();
+app.UseSwagger();
+app.UseSwaggerUI();
+
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
 
 app.Run();

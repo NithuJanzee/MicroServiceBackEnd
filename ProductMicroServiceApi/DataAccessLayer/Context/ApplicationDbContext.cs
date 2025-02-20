@@ -6,7 +6,7 @@ namespace eCommerce.DataAccessLayer.Context;
 public class ApplicationDbContext : DbContext
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
-    
+
 
     public DbSet<Products> products { get; set; }
 
@@ -15,5 +15,7 @@ public class ApplicationDbContext : DbContext
         base.OnModelCreating(modelBuilder);
     }
 
-}
 
+
+    //string connectionString = "Server=localhost;Port=3306;Database=ecommerceproductsdatabase;User Id=root;Password=261412;";
+}
