@@ -12,9 +12,10 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["ProductMicroServiceApi/ProductMicroServiceApi.csproj", "ProductMicroServiceApi/"]
+COPY ["ProductMicroServiceApi/ProductMicroServiceApi.csproj",
+"ProductMicroServiceApi/"]
 RUN dotnet restore "./ProductMicroServiceApi/ProductMicroServiceApi.csproj"
-COPY . .
+COPY . .   # First Dot is source and second is destination
 WORKDIR "/src/ProductMicroServiceApi"
 RUN dotnet build "./ProductMicroServiceApi.csproj" -c $BUILD_CONFIGURATION -o /app/build
 

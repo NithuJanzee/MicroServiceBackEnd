@@ -23,13 +23,13 @@ builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddEndpointsApiExplorer();
 //add swagger genreration services
 builder.Services.AddSwaggerGen();
-builder.Services.AddCors(options =>
-{
-    options.AddDefaultPolicy(builder =>
+    builder.Services.AddCors(options =>
     {
-        builder.WithOrigins("http://localhost:4200").AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+        options.AddDefaultPolicy(builder =>
+        {
+            builder.WithOrigins("http://localhost:4200").AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+        });
     });
-});
 var app = builder.Build();
 app.UseExeptionHandlingMiddleWare();
 
