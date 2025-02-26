@@ -66,11 +66,11 @@ public class ProductService : IproductService
         return response;
     }
 
-    public async Task<List<ProductResponse>> GetProducts()
+    public async Task<List<Products>> GetProducts()
     {
         IEnumerable<Products?> products = await _Repository.GetProducts();
-        IEnumerable<ProductResponse?> ProductResponse = _Mapper.Map<IEnumerable<ProductResponse>>(products);
-        return  ProductResponse.ToList();
+       // IEnumerable<ProductResponse?> ProductResponse = _Mapper.Map<IEnumerable<ProductResponse>>(products);
+        return products.ToList();
     }
 
     public async Task<List<ProductResponse?>> GetProductsByCondition(Expression<Func<Products, bool>> connditionExpression)

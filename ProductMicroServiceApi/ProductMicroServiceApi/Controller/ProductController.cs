@@ -3,6 +3,7 @@ using AutoMapper;
 using BusinessLogicLayer.DTO;
 using BusinessLogicLayer.ServiceContracts;
 using BusinessLogicLayer.Validators;
+using DataAccessLayer.Entities;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
@@ -71,7 +72,7 @@ namespace ProductMicroServiceApi.Controller
         [HttpGet("GetAllProducts")]
         public async Task<IActionResult> GetAllProducts()
         {
-            List<ProductResponse> products = await _ProductService.GetProducts();
+            List<Products> products = await _ProductService.GetProducts();
             return Ok(products);
         }
 

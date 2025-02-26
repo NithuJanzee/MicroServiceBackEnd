@@ -9,8 +9,9 @@ namespace BusinessLogicLayer.Mapper
         public ApplicationUserMappingProfile()
         {
             CreateMap<ProductAddRequest, Products>().ReverseMap();
-            CreateMap<ProductResponse, Products>().ReverseMap();
+            CreateMap<Products, Products>().ReverseMap();
             CreateMap<ProductUpdateRequest, Products>().ReverseMap();
+            CreateMap<ProductResponse, Products>().ReverseMap();
         }
     }
 }

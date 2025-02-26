@@ -7,7 +7,7 @@ namespace BusinessLogicLayer.ServiceContracts;
 
 public interface IproductService
 {
-    Task<List<ProductResponse>> GetProducts();
+    Task<List<Products>> GetProducts();
     Task<ProductResponse?> GetProductByCondition(Expression<Func<Products, bool>> connditionExpression);
     Task<List<ProductResponse?>> GetProductsByCondition(Expression<Func<Products, bool>> connditionExpression);
     Task<ProductResponse?> AddProduct(ProductAddRequest product);

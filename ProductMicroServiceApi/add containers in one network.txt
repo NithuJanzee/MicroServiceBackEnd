@@ -1,0 +1,49 @@
+TO add in network and run =
+docker run -it -e MYSQL_ROOT_PASSWORD=261412 -p 3306:3306 --hostname=mysql-host-productmicroservice --network=product-microservice-network mysql:latest
+
+services.msc
+
+mysql90
+
+TO add in network and run =
+docker run -p 8080:8080 --network=product-microservice-network nithushanjanson/e-commerce-product-microservice:v1.0
+
+Just for run =
+docker run -p 8080:8080 nithushanjanson/e-commerce-product-microservice:v1.0
+
+
+
+After making any changes this is rebuild the docker image =
+docker build -t product-microservice:v1.0 -f ProductMicroServiceApi/Dockerfile .
+
+after rebuild tag the exiting docker image (Pushed in the repository) to the new rebuild = 
+docker tag product-microservice:v1.0 nithushanjanson/e-commerce-micro-service:v1.0
+
+after the pull run the docker image (Backend) Run with the server name and password = 
+docker run -p 8080:8080 --network=product-microservice-network -e MYSQL_HOST=mysql-host-productmicroservice -e MYSQL_PASSWORD=261412 nithushanjanson/e-commerce-product-microservice:v1.0   
+
+
+
+
+
+
+from gpt
+TO access the MySQL container image out side the container = 
+docker run --rm -it --network=product-microservice-network mysql:latest mysql -h mysql-host-productmicroservice -u root -p
+
+Run MySQL container (if not already running):
+docker run -d --name mysql-container --network=product-microservice-network \
+  -e MYSQL_ROOT_PASSWORD=261412 \
+  -p 3306:3306 \
+  --hostname=mysql-host-productmicroservice \
+  mysql:latest
+
+Run the microservice container with the environment variables:
+docker run -p 8080:8080 --network=product-microservice-network \
+  -e MYSQL_HOST=mysql-host-productmicroservice \
+  -e MYSQL_PASSWORD=261412 \
+  nithushanjanson/e-commerce-product-microservice:v1.0
+
+
+local host : http://localhost:8080/api/Product/GetAllProducts
+
