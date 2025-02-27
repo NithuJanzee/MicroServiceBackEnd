@@ -11,11 +11,17 @@ public class DapperDbContext
     private readonly IDbConnection _connection;
     public DapperDbContext(IConfiguration Confuguration)
     {
-        _configuration = Confuguration;
-        string connectionString = _configuration.GetConnectionString("PostgresConnection");
+        //_configuration = Confuguration;
+        //string connectionString = _configuration.GetConnectionString("PostgresConnection");
 
         // create new npgsql connection with the new received connection string
-      _connection =  new NpgsqlConnection(connectionString);
+
+        _configuration = Confuguration;
+        string connectionStringTemplate = _configuration.GetConnectionString("PostgresConnection")!;
+        string connectionString = connectionStringTemplate
+          .Replace("$POSTGRES_HOST", Environment.GetEnvironmentVariable("POSTGRES_HOST"))
+          .Replace("$POSTGRES_PASSWORD", Environment.GetEnvironmentVariable("POSTGRES_PASSWORD"));
+        _connection =  new NpgsqlConnection(connectionString);
     }
 
     public IDbConnection DbConnection => _connection;
