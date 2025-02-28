@@ -1,0 +1,53 @@
+services:
+  mysql-container:
+    image: mysql:9.2.0
+    environment:
+      MYSQL_ROOT_PASSWORD: "261412"
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql-init:/docker-entrypoint-initdb.d  # Fix volume path syntax
+    networks:
+      - products-microservice-network
+    hostname: mysql-host-productsmicroservice
+
+  products-microservice:
+    image: nithushanjanson/e-commerce-micro-service:v1.0
+    environment:
+      MYSQL_HOST: mysql-host-productsmicroservice
+      MYSQL_PASSWORD: "261412"
+    ports:
+      - "8080:8080"
+    networks:
+      - products-microservice-network
+    depends_on:
+      - mysql-container  # Ensure MySQL starts before the app
+
+  postgres-container:
+    image: postgres:17.4
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "261412"
+      POSTGRES_DB: eCommerceUsers
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres-init:/docker-entrypoint-initdb.d
+    networks:
+      - ecommerce-network
+
+  users-microservice:
+    image: nithushanjanson/ecommerce-user-microservice:v1.0
+    environment:
+      POSTGRES_HOST: postgres-container
+      POSTGRES_PASSWORD: "261412"
+    ports:
+      - "9090:9090"
+    networks:
+      - ecommerce-network
+
+networks:
+  products-microservice-network:
+    driver: bridge
+  ecommerce-network:  # Added missing network definition
+    driver: bridge
