@@ -1,4 +1,4 @@
-﻿using DataAccessLayer.Entity;
+﻿using eCommerce.OrderMicroservice.DataAccessLayer.Entity;
 using MongoDB.Driver;
 
 namespace eCommerce.OrderMicroservice.DataAccessLayer.RepositoryContracts;

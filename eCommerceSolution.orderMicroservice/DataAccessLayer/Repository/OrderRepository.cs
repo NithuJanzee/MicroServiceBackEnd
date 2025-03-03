@@ -1,4 +1,4 @@
-﻿using DataAccessLayer.Entity;
+﻿using eCommerce.OrderMicroservice.DataAccessLayer.Entity;
 using eCommerce.OrderMicroservice.DataAccessLayer.RepositoryContracts;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver;

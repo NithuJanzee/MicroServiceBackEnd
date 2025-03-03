@@ -11,9 +11,4 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.2" />
     <PackageReference Include="MongoDB.Driver" Version="3.2.1" />
   </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Businesslogiclayer\Businesslogiclayer.csproj" />
-  </ItemGroup>
-
 </Project>
