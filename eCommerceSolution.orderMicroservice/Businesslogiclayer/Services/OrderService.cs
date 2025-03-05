@@ -8,6 +8,7 @@ using eCommerce.OrderMicroservice.DataAccessLayer.Entity;
 using eCommerce.OrderMicroservice.DataAccessLayer.Repository;
 using eCommerce.OrderMicroservice.DataAccessLayer.RepositoryContracts;
 using FluentValidation;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using ValidationResult = FluentValidation.Results.ValidationResult;
@@ -97,19 +98,35 @@ public class OrderService : IorderService
         return isDeleted;
     }
 
-    public Task<OrderResponse?> GetOrderByCondition(FilterDefinition<Order> filter)
+    public async Task<OrderResponse?> GetOrderByCondition(FilterDefinition<Order> filter)
     {
-        throw new NotImplementedException();
+        Order? order = await _iorderRepository.GetOrderByCondition(filter);
+        if(order == null)
+        {
+            return null;
+        } 
+
+        OrderResponse? response = _mapper.Map<OrderResponse?>(order);
+        return response;
     }
 
-    public Task<List<OrderResponse?>> GetOrders()
+    public async Task<List<OrderResponse?>> GetOrders()
     {
-        throw new NotImplementedException();
+        IEnumerable<Order> orders = await _iorderRepository.GetOrders();
+        IEnumerable<OrderResponse?> OrderResponse = _mapper.Map<IEnumerable<OrderResponse?>>(orders);
+        return OrderResponse.ToList();
     }
 
-    public Task<List<OrderResponse?>> GetOrdersByCondition(FilterDefinition<Order> filter)
+    public async Task<List<OrderResponse?>> GetOrdersByCondition(FilterDefinition<Order> filter)
     {
-        throw new NotImplementedException();
+        IEnumerable<Order?> order = await _iorderRepository.GetOrdersByCondition(filter);
+        if (order == null)
+        {
+            return null;
+        }
+
+        IEnumerable<OrderResponse?> Response = _mapper.Map<IEnumerable<OrderResponse>>(order);
+        return Response.ToList();
     }
 
     public async Task<OrderResponse?> UpdateOrder(OrderUpdateRequest orderUpdateRequest)
