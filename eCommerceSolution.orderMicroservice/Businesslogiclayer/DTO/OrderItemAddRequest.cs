@@ -4,6 +4,5 @@ public record OrderItemAddRequest(Guid ProductId, decimal UnitPrice , int Quanti
 {
     public OrderItemAddRequest() : this(default, default, default)
     {
-
     }
 }

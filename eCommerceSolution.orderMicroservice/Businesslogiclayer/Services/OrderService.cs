@@ -1,0 +1,111 @@
+﻿using System.ComponentModel.DataAnnotations;
+using AutoMapper;
+using eCommerce.OrderMicroservice.Businesslogiclayer.ServiceContact;
+using eCommerce.OrderMicroservice.Businesslogiclayer.Validators;
+using eCommerce.OrderMicroservice.BusinessLogicLayer.DTO;
+using eCommerce.OrderMicroservice.Businesslogiclayerr.Validators;
+using eCommerce.OrderMicroservice.DataAccessLayer.Entity;
+using eCommerce.OrderMicroservice.DataAccessLayer.Repository;
+using eCommerce.OrderMicroservice.DataAccessLayer.RepositoryContracts;
+using FluentValidation;
+using Microsoft.Extensions.Options;
+using MongoDB.Driver;
+using ValidationResult = FluentValidation.Results.ValidationResult;
+
+namespace eCommerce.OrderMicroservice.Businesslogiclayer.Services;
+
+public class OrderService : IorderService
+{
+    private readonly IValidator<OrderAddRequest> _OrderAddrequestValidator;
+    private readonly IValidator<OrderItemAddRequest> _OrderItemAddrequestValidator;
+    private readonly IValidator<OrderItemUpdateRequest> _OrderItemUpdaterequestValidator;
+    private readonly IValidator<OrderUpdateRequest> _OrderUpdaterequestValidator;
+    private readonly IorderRepository _iorderRepository;
+    private readonly IMapper _mapper;
+
+    public OrderService(IValidator<OrderAddRequest> orderAddrequestValidator, IValidator<OrderItemAddRequest> orderItemAddrequestValidator, IValidator<OrderItemUpdateRequest> orderItemUpdaterequestValidator, IValidator<OrderUpdateRequest> orderUpdaterequestValidator, IorderRepository iorderRepository, IMapper mapper)
+    {
+        _OrderAddrequestValidator = orderAddrequestValidator;
+        _OrderItemAddrequestValidator = orderItemAddrequestValidator;
+        _OrderItemUpdaterequestValidator = orderItemUpdaterequestValidator;
+        _OrderUpdaterequestValidator = orderUpdaterequestValidator;
+        _iorderRepository = iorderRepository;
+        _mapper = mapper;
+    }
+
+    public async Task<OrderResponse?> AddOrder(OrderAddRequest orderAddRequest)
+    {
+        if (orderAddRequest == null)
+        {
+            throw new ArgumentNullException(nameof(orderAddRequest));
+        }
+
+        // validate using fluent validation
+        ValidationResult OrderAddvalidationResult = await _OrderAddrequestValidator.ValidateAsync(orderAddRequest);
+        if (!OrderAddvalidationResult.IsValid)
+        {
+            string error = string.Join(",", OrderAddvalidationResult.Errors.Select(temp => temp.ErrorMessage));
+            throw new ArgumentException(error);
+        }
+        //validate order items using fluent validation
+        foreach (OrderItemAddRequest orderItemAddRequest in orderAddRequest.OrderItems)
+        {
+            ValidationResult validationResult = await _OrderItemAddrequestValidator.ValidateAsync(orderItemAddRequest);
+            if (!validationResult.IsValid)
+            {
+                string errors = string.Join(",", validationResult.Errors.Select(temp => temp.ErrorMessage));
+                throw new ArgumentException(errors);
+            }
+        }
+
+        //TO DO: Add logic for checking if UserID exists in Users microservice
+        // beacuse all data manage by another microservice sooooo we need to check if the user exists or not
+
+
+
+        Order orderInput = _mapper.Map<Order>(orderAddRequest);
+        // genrate total value 
+        foreach (OrderItem orderItem in orderInput.OrderItem)
+        {
+            orderItem.TotalPrice = (double)(orderItem.Quantity * orderItem.UnitPrice);
+        }
+        orderInput.TotalBill = (decimal)orderInput.OrderItem.Sum(temp => temp.TotalPrice);
+        //Invoke repository
+        Order? addedOrder = await _iorderRepository.AddOrder(orderInput);
+
+        if (addedOrder == null)
+        {
+            return null;
+        }
+        //Map addedOrder ('Order' type) into 'OrderResponse' type (it invokes OrderToOrderResponseMappingProfile).
+        OrderResponse addedOrderResponse = _mapper.Map<OrderResponse>(addedOrder); 
+
+        return addedOrderResponse;
+    }
+    
+
+    public Task<bool> DeleteOrder(Guid orderID)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<OrderResponse?> GetOrderByCondition(FilterDefinition<Order> filter)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<List<OrderResponse?>> GetOrders()
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<List<OrderResponse?>> GetOrdersByCondition(FilterDefinition<Order> filter)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<OrderResponse?> UpdateOrder(OrderUpdateRequest orderUpdateRequest)
+    {
+        throw new NotImplementedException();
+    }
+}
