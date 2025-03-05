@@ -84,9 +84,17 @@ public class OrderService : IorderService
     }
     
 
-    public Task<bool> DeleteOrder(Guid orderID)
+    public async Task<bool> DeleteOrder(Guid orderID)
     {
-        throw new NotImplementedException();
+        FilterDefinition<Order> Filter = Builders<Order>.Filter.Eq(temp => temp.OrderId, orderID);
+        Order? exitingOrder = await _iorderRepository.GetOrderByCondition(Filter);
+        if (exitingOrder == null)
+        {
+            return false;
+        }
+
+        bool isDeleted = await _iorderRepository.DeleteOrder(orderID);
+        return isDeleted;
     }
 
     public Task<OrderResponse?> GetOrderByCondition(FilterDefinition<Order> filter)
