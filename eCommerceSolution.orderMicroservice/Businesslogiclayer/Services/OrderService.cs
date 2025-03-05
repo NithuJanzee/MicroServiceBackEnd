@@ -104,8 +104,51 @@ public class OrderService : IorderService
         throw new NotImplementedException();
     }
 
-    public Task<OrderResponse?> UpdateOrder(OrderUpdateRequest orderUpdateRequest)
+    public async Task<OrderResponse?> UpdateOrder(OrderUpdateRequest orderUpdateRequest)
     {
-        throw new NotImplementedException();
+        if(orderUpdateRequest == null)
+        {
+            throw new ArgumentException(nameof(orderUpdateRequest));
+        }
+
+        // validate the orderupdate request
+        ValidationResult OrderUpdatevalidationResult = await _OrderUpdaterequestValidator.ValidateAsync(orderUpdateRequest);
+        if (!OrderUpdatevalidationResult.IsValid)
+        {
+            string error = string.Join(",", OrderUpdatevalidationResult.Errors.Select(temp => temp.ErrorMessage));
+            throw new ArgumentException(error);
+        }
+
+        //inside the orderupdate request validate the order item update item request
+        foreach(OrderItemUpdateRequest updateRequest in orderUpdateRequest.OrderItems)
+        {
+            ValidationResult OrderItemUpdateResult = await _OrderItemUpdaterequestValidator.ValidateAsync(updateRequest);
+            if(!OrderItemUpdateResult.IsValid)
+            {
+                string error = string.Join(",", OrderItemUpdateResult.Errors.Select(temp => temp.ErrorMessage));
+                throw new ArgumentException(error);
+            }
+        }
+
+        //TO DO: Add logic for checking if UserID exists in Users microservice
+
+
+        Order OrderInput = _mapper.Map<Order>(orderUpdateRequest);
+
+        // Genrate total value
+        foreach(OrderItem orderItem in OrderInput.OrderItem)
+        {
+            orderItem.TotalPrice = (double)(orderItem.Quantity * orderItem.UnitPrice);
+        }
+        OrderInput.TotalBill = (decimal)OrderInput.OrderItem.Sum(temp => temp.TotalPrice);
+
+        //Invoke repository
+        Order? OrderRepository = await _iorderRepository.UpdateOrder(OrderInput);
+        if(OrderRepository == null)
+        {
+            return null;
+        }
+        OrderResponse orderUpdateResponse = _mapper.Map<OrderResponse>(OrderRepository);
+        return orderUpdateResponse;
     }
 }
