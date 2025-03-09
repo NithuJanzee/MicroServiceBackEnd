@@ -6,7 +6,7 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - ./mysql-init:/docker-entrypoint-initdb.d  # Fix volume path syntax
+      - ./mysql-init:/docker-entrypoint-initdb.d 
     networks:
       - products-microservice-network
     hostname: mysql-host-productsmicroservice
@@ -21,7 +21,7 @@ services:
     networks:
       - products-microservice-network
     depends_on:
-      - mysql-container  # Ensure MySQL starts before the app
+      - mysql-container  
 
   postgres-container:
     image: postgres:17.4

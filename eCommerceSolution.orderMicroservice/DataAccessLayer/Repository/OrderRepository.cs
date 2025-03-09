@@ -17,15 +17,20 @@ public class OrderRepository : IorderRepository
 
     public async Task<Order?> AddOrder(Order order)
     {
-        order.OrderId = Guid.NewGuid();
+        order.OrderID = Guid.NewGuid();
+        order._id = order.OrderID;
 
+        foreach (OrderItem orderItem in order.OrderItems)
+        {
+            orderItem._Id = Guid.NewGuid();
+        }
         await _orders.InsertOneAsync(order);
         return order;
     }
 
     public async Task<bool> DeleteOrder(Guid orderId)
     {
-        FilterDefinition<Order> filter = Builders<Order>.Filter.Eq(x => x.OrderId, orderId);
+        FilterDefinition<Order> filter = Builders<Order>.Filter.Eq(x => x.OrderID, orderId);
         Order? ExitingOrder = (await _orders.FindAsync(filter)).FirstOrDefault();
         if (ExitingOrder == null)
         {
@@ -53,7 +58,7 @@ public class OrderRepository : IorderRepository
 
     public async Task<Order?> UpdateOrder(Order order)
     {
-        FilterDefinition<Order> filter = Builders<Order>.Filter.Eq(x => x.OrderId, order.OrderId);
+        FilterDefinition<Order> filter = Builders<Order>.Filter.Eq(x => x.OrderID, order.OrderID);
         Order? ExitingOrder = (await _orders.FindAsync(filter)).FirstOrDefault();
         if (ExitingOrder == null)
         {

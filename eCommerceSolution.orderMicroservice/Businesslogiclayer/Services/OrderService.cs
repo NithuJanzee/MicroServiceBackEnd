@@ -66,11 +66,11 @@ public class OrderService : IorderService
 
         Order orderInput = _mapper.Map<Order>(orderAddRequest);
         // genrate total value 
-        foreach (OrderItem orderItem in orderInput.OrderItem)
+        foreach (OrderItem orderItem in orderInput.OrderItems)
         {
             orderItem.TotalPrice = (double)(orderItem.Quantity * orderItem.UnitPrice);
         }
-        orderInput.TotalBill = (decimal)orderInput.OrderItem.Sum(temp => temp.TotalPrice);
+        orderInput.TotalBill = (decimal)orderInput.OrderItems.Sum(temp => temp.TotalPrice);
         //Invoke repository
         Order? addedOrder = await _iorderRepository.AddOrder(orderInput);
 
@@ -87,7 +87,7 @@ public class OrderService : IorderService
 
     public async Task<bool> DeleteOrder(Guid orderID)
     {
-        FilterDefinition<Order> Filter = Builders<Order>.Filter.Eq(temp => temp.OrderId, orderID);
+        FilterDefinition<Order> Filter = Builders<Order>.Filter.Eq(temp => temp.OrderID, orderID);
         Order? exitingOrder = await _iorderRepository.GetOrderByCondition(Filter);
         if (exitingOrder == null)
         {
@@ -161,11 +161,11 @@ public class OrderService : IorderService
         Order OrderInput = _mapper.Map<Order>(orderUpdateRequest);
 
         // Genrate total value
-        foreach(OrderItem orderItem in OrderInput.OrderItem)
+        foreach(OrderItem orderItem in OrderInput.OrderItems)
         {
             orderItem.TotalPrice = (double)(orderItem.Quantity * orderItem.UnitPrice);
         }
-        OrderInput.TotalBill = (decimal)OrderInput.OrderItem.Sum(temp => temp.TotalPrice);
+        OrderInput.TotalBill = (decimal)OrderInput.OrderItems.Sum(temp => temp.TotalPrice);
 
         //Invoke repository
         Order? OrderRepository = await _iorderRepository.UpdateOrder(OrderInput);

@@ -20,7 +20,7 @@ namespace order_microservice.ApiController
         }
 
         //GET: /api/Orders
-        [HttpGet]
+        [HttpGet("GetOrders")]
         public async Task<IEnumerable<OrderResponse?>> Get()
         {
             List<OrderResponse?> orders = await _ordersService.GetOrders();
@@ -32,7 +32,7 @@ namespace order_microservice.ApiController
         [HttpGet("search/orderid/{orderID}")]
         public async Task<OrderResponse?> GetOrderByOrderID(Guid orderID)
         {
-            FilterDefinition<Order> filter = Builders<Order>.Filter.Eq(temp => temp.OrderId, orderID);
+            FilterDefinition<Order> filter = Builders<Order>.Filter.Eq(temp => temp.OrderID, orderID);
 
             OrderResponse? order = await _ordersService.GetOrderByCondition(filter);
             return order;
@@ -43,7 +43,7 @@ namespace order_microservice.ApiController
         [HttpGet("search/productid/{productID}")]
         public async Task<IEnumerable<OrderResponse?>> GetOrdersByProductID(Guid productID)
         {
-            FilterDefinition<Order> filter = Builders<Order>.Filter.ElemMatch(temp => temp.OrderItem,
+            FilterDefinition<Order> filter = Builders<Order>.Filter.ElemMatch(temp => temp.OrderItems,
               Builders<OrderItem>.Filter.Eq(tempProduct => tempProduct.ProductID, productID)
               );
 
