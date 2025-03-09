@@ -65,6 +65,8 @@ public class OrderRepository : IorderRepository
             return null;
         }
 
+        order._id = ExitingOrder._id;
+
         ReplaceOneResult replaceOneResult = await _orders.ReplaceOneAsync(filter, order);
         return order;
     }

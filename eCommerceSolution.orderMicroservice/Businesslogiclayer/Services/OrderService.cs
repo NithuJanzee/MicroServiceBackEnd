@@ -1,15 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
-using AutoMapper;
+﻿using AutoMapper;
 using eCommerce.OrderMicroservice.Businesslogiclayer.ServiceContact;
-using eCommerce.OrderMicroservice.Businesslogiclayer.Validators;
 using eCommerce.OrderMicroservice.BusinessLogicLayer.DTO;
-using eCommerce.OrderMicroservice.Businesslogiclayerr.Validators;
 using eCommerce.OrderMicroservice.DataAccessLayer.Entity;
-using eCommerce.OrderMicroservice.DataAccessLayer.Repository;
 using eCommerce.OrderMicroservice.DataAccessLayer.RepositoryContracts;
 using FluentValidation;
-using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using ValidationResult = FluentValidation.Results.ValidationResult;
 
@@ -79,11 +73,11 @@ public class OrderService : IorderService
             return null;
         }
         //Map addedOrder ('Order' type) into 'OrderResponse' type (it invokes OrderToOrderResponseMappingProfile).
-        OrderResponse addedOrderResponse = _mapper.Map<OrderResponse>(addedOrder); 
+        OrderResponse addedOrderResponse = _mapper.Map<OrderResponse>(addedOrder);
 
         return addedOrderResponse;
     }
-    
+
 
     public async Task<bool> DeleteOrder(Guid orderID)
     {
@@ -101,10 +95,10 @@ public class OrderService : IorderService
     public async Task<OrderResponse?> GetOrderByCondition(FilterDefinition<Order> filter)
     {
         Order? order = await _iorderRepository.GetOrderByCondition(filter);
-        if(order == null)
+        if (order == null)
         {
             return null;
-        } 
+        }
 
         OrderResponse? response = _mapper.Map<OrderResponse?>(order);
         return response;
@@ -131,7 +125,7 @@ public class OrderService : IorderService
 
     public async Task<OrderResponse?> UpdateOrder(OrderUpdateRequest orderUpdateRequest)
     {
-        if(orderUpdateRequest == null)
+        if (orderUpdateRequest == null)
         {
             throw new ArgumentException(nameof(orderUpdateRequest));
         }
@@ -145,10 +139,10 @@ public class OrderService : IorderService
         }
 
         //inside the orderupdate request validate the order item update item request
-        foreach(OrderItemUpdateRequest updateRequest in orderUpdateRequest.OrderItems)
+        foreach (OrderItemUpdateRequest updateRequest in orderUpdateRequest.OrderItems)
         {
             ValidationResult OrderItemUpdateResult = await _OrderItemUpdaterequestValidator.ValidateAsync(updateRequest);
-            if(!OrderItemUpdateResult.IsValid)
+            if (!OrderItemUpdateResult.IsValid)
             {
                 string error = string.Join(",", OrderItemUpdateResult.Errors.Select(temp => temp.ErrorMessage));
                 throw new ArgumentException(error);
@@ -161,7 +155,7 @@ public class OrderService : IorderService
         Order OrderInput = _mapper.Map<Order>(orderUpdateRequest);
 
         // Genrate total value
-        foreach(OrderItem orderItem in OrderInput.OrderItems)
+        foreach (OrderItem orderItem in OrderInput.OrderItems)
         {
             orderItem.TotalPrice = (double)(orderItem.Quantity * orderItem.UnitPrice);
         }
@@ -169,7 +163,7 @@ public class OrderService : IorderService
 
         //Invoke repository
         Order? OrderRepository = await _iorderRepository.UpdateOrder(OrderInput);
-        if(OrderRepository == null)
+        if (OrderRepository == null)
         {
             return null;
         }
