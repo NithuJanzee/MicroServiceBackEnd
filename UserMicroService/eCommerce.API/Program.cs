@@ -19,6 +19,7 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 builder.Services.AddAutoMapper(typeof(ApplicationUserMappingProfile).Assembly);
 //Fluent Validation
 builder.Services.AddFluentValidationAutoValidation();
+
 //add api explore services
 builder.Services.AddEndpointsApiExplorer();
 //add swagger genreration services

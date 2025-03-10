@@ -1,4 +1,6 @@
-﻿using eCommerce.Core.DTO;
+﻿using System.Threading.Tasks;
+using eCommerce.Core.DTO;
+using eCommerce.Core.Entities;
 
 namespace eCommerce.Core.ServiceContracts
 {
@@ -17,5 +19,13 @@ namespace eCommerce.Core.ServiceContracts
         /// <param name="registor"></param>
         /// <returns></returns>
         Task<AuthenticationResponse?> Register(RegistorRequestDTO registor);
+
+
+        /// <summary>
+        /// Methord to get user by ID
+        /// </summary>
+        /// <param name="ID"></param>
+        /// <returns> User DTO Object based on the matching user ID </returns>
+        Task<UserDTO?> GetUserByID(Guid ID);
     }
 }

@@ -19,6 +19,7 @@ namespace eCommerce.Core.Mapper
             ));
 
             CreateMap<RegistorRequestDTO, ApplicationUser>().ReverseMap();
+            CreateMap<ApplicationUser, UserDTO>().ReverseMap();
             
         }
     }
