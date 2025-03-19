@@ -18,7 +18,7 @@ namespace eCommerceInfrastucture
             //caching and other low level components
 
             services.AddTransient<IusersRepository, UserRepository>();
-            services.AddSingleton<DapperDbContext>();
+            services.AddScoped<DapperDbContext>();
             return services;
         }
     }

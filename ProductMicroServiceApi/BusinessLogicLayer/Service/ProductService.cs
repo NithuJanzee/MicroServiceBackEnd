@@ -1,7 +1,4 @@
-﻿
-
-using System.ComponentModel.DataAnnotations;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using AutoMapper;
 using BusinessLogicLayer.DTO;
 using BusinessLogicLayer.ServiceContracts;
@@ -44,14 +41,14 @@ public class ProductService : IproductService
         Products ProductMap = _Mapper.Map<Products>(product);
         Products? AddProducts = await _Repository.AddProduct(ProductMap);
 
-        if(AddProducts == null) return null;
+        if (AddProducts == null) return null;
         ProductResponse response = _Mapper.Map<ProductResponse>(AddProducts);
         return response;
     }
 
     public async Task<bool> DeleteProduct(Guid ProductID)
     {
-       Products? ExitingProducts = await _Repository.GetProductByCondition(temp => temp.ProductID == ProductID);
+        Products? ExitingProducts = await _Repository.GetProductByCondition(temp => temp.ProductID == ProductID);
         if (ExitingProducts == null) return false;
 
         bool isDeleted = await _Repository.DeleteProduct(ProductID);
@@ -60,7 +57,7 @@ public class ProductService : IproductService
 
     public async Task<ProductResponse?> GetProductByCondition(Expression<Func<Products, bool>> connditionExpression)
     {
-       Products? ExitingProducts = await _Repository.GetProductByCondition(connditionExpression);
+        Products? ExitingProducts = await _Repository.GetProductByCondition(connditionExpression);
         if (ExitingProducts == null) return null;
         ProductResponse response = _Mapper.Map<ProductResponse>(ExitingProducts);
         return response;
@@ -69,13 +66,13 @@ public class ProductService : IproductService
     public async Task<List<Products>> GetProducts()
     {
         IEnumerable<Products?> products = await _Repository.GetProducts();
-       // IEnumerable<ProductResponse?> ProductResponse = _Mapper.Map<IEnumerable<ProductResponse>>(products);
+        // IEnumerable<ProductResponse?> ProductResponse = _Mapper.Map<IEnumerable<ProductResponse>>(products);
         return products.ToList();
     }
 
     public async Task<List<ProductResponse?>> GetProductsByCondition(Expression<Func<Products, bool>> connditionExpression)
     {
-       IEnumerable<Products?> Products = await _Repository.GetProductsByCondition(connditionExpression);
+        IEnumerable<Products?> Products = await _Repository.GetProductsByCondition(connditionExpression);
         IEnumerable<ProductResponse?> ProductResponse = _Mapper.Map<IEnumerable<ProductResponse>>(Products);
         return ProductResponse.ToList();
     }
@@ -85,7 +82,7 @@ public class ProductService : IproductService
         Products? ExitingProducts = await _Repository.GetProductByCondition(temp => temp.ProductID == product.ProductID);
         if (ExitingProducts == null) throw new ArgumentException("Product Not Found");
 
-       FluentValidation.Results.ValidationResult validation = await _UpdateRequestValidator.ValidateAsync(product);
+        FluentValidation.Results.ValidationResult validation = await _UpdateRequestValidator.ValidateAsync(product);
 
         if (!validation.IsValid)
         {

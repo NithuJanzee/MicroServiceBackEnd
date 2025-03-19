@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using eCommerce.OrderMicroservice.Businesslogiclayer.HttpClients;
 using eCommerce.OrderMicroservice.Businesslogiclayer.ServiceContact;
 using eCommerce.OrderMicroservice.BusinessLogicLayer.DTO;
 using eCommerce.OrderMicroservice.DataAccessLayer.Entity;
@@ -17,8 +18,9 @@ public class OrderService : IorderService
     private readonly IValidator<OrderUpdateRequest> _OrderUpdaterequestValidator;
     private readonly IorderRepository _iorderRepository;
     private readonly IMapper _mapper;
+    private readonly UsersMicroServiceClint _usersMicroServiceClinet;
 
-    public OrderService(IValidator<OrderAddRequest> orderAddrequestValidator, IValidator<OrderItemAddRequest> orderItemAddrequestValidator, IValidator<OrderItemUpdateRequest> orderItemUpdaterequestValidator, IValidator<OrderUpdateRequest> orderUpdaterequestValidator, IorderRepository iorderRepository, IMapper mapper)
+    public OrderService(IValidator<OrderAddRequest> orderAddrequestValidator, IValidator<OrderItemAddRequest> orderItemAddrequestValidator, IValidator<OrderItemUpdateRequest> orderItemUpdaterequestValidator, IValidator<OrderUpdateRequest> orderUpdaterequestValidator, IorderRepository iorderRepository, IMapper mapper, UsersMicroServiceClint usersMicroService)
     {
         _OrderAddrequestValidator = orderAddrequestValidator;
         _OrderItemAddrequestValidator = orderItemAddrequestValidator;
@@ -26,6 +28,7 @@ public class OrderService : IorderService
         _OrderUpdaterequestValidator = orderUpdaterequestValidator;
         _iorderRepository = iorderRepository;
         _mapper = mapper;
+        _usersMicroServiceClinet = usersMicroService;
     }
 
     public async Task<OrderResponse?> AddOrder(OrderAddRequest orderAddRequest)
@@ -55,7 +58,11 @@ public class OrderService : IorderService
 
         //TO DO: Add logic for checking if UserID exists in Users microservice
         // beacuse all data manage by another microservice sooooo we need to check if the user exists or not
-
+        UserDTO? user = await _usersMicroServiceClinet.GetUserByUserId(orderAddRequest.UserId);
+        if (user == null)
+        {
+            throw new ArgumentException("Invalid user Id");
+        }
 
 
         Order orderInput = _mapper.Map<Order>(orderAddRequest);
@@ -150,6 +157,11 @@ public class OrderService : IorderService
         }
 
         //TO DO: Add logic for checking if UserID exists in Users microservice
+        UserDTO? user = await _usersMicroServiceClinet.GetUserByUserId(orderUpdateRequest.UserID);
+        if (user == null)
+        {
+            throw new ArgumentException("Invalid user Id");
+        }
 
 
         Order OrderInput = _mapper.Map<Order>(orderUpdateRequest);

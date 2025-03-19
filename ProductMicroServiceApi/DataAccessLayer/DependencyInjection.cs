@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Configuration.Internal;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DataAccessLayer.Repository;
+﻿using DataAccessLayer.Repository;
 using DataAccessLayer.RepositoryContracts;
 using eCommerce.DataAccessLayer.Context;
 using Microsoft.EntityFrameworkCore;
@@ -31,11 +24,19 @@ namespace DataAccessLayer
             // Ensure environment variables are not null
             string mysqlHost = Environment.GetEnvironmentVariable("MYSQL_HOST") ?? "localhost";
             string mysqlPassword = Environment.GetEnvironmentVariable("MYSQL_PASSWORD") ?? "261412";
+            string Database = Environment.GetEnvironmentVariable("MYSQL_DATABASE") ?? "ecommerceproductsdatabase";
+            string Port = Environment.GetEnvironmentVariable("MYSQL_PORT") ?? "3306";
+            string UserId = Environment.GetEnvironmentVariable("MYSQL_USER") ?? "root";
 
             // Replace placeholders with environment variables
             string connectionString = connectionStringTemplate
                 .Replace("$MYSQL_HOST", mysqlHost)
-                .Replace("$MYSQL_PASSWORD", mysqlPassword);
+                .Replace("$MYSQL_PASSWORD", mysqlPassword)
+                .Replace("$MYSQL_DATABASE", Database)
+                .Replace("$MYSQL_PORT", Port)
+                .Replace("$MYSQL_USER", UserId);
+
+
 
             services.AddScoped<IproductRepository, ProductRepository>();
             services.AddDbContext<ApplicationDbContext>(options =>
