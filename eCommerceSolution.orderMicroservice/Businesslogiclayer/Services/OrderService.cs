@@ -1,11 +1,11 @@
-﻿using AutoMapper;
+﻿using System.Linq.Expressions;
+using AutoMapper;
 using eCommerce.OrderMicroservice.Businesslogiclayer.HttpClients;
 using eCommerce.OrderMicroservice.Businesslogiclayer.ServiceContact;
 using eCommerce.OrderMicroservice.BusinessLogicLayer.DTO;
 using eCommerce.OrderMicroservice.DataAccessLayer.Entity;
 using eCommerce.OrderMicroservice.DataAccessLayer.RepositoryContracts;
 using FluentValidation;
-using MongoDB.Driver;
 using ValidationResult = FluentValidation.Results.ValidationResult;
 
 namespace eCommerce.OrderMicroservice.Businesslogiclayer.Services;
@@ -20,7 +20,14 @@ public class OrderService : IorderService
     private readonly IMapper _mapper;
     private readonly UsersMicroServiceClint _usersMicroServiceClinet;
 
-    public OrderService(IValidator<OrderAddRequest> orderAddrequestValidator, IValidator<OrderItemAddRequest> orderItemAddrequestValidator, IValidator<OrderItemUpdateRequest> orderItemUpdaterequestValidator, IValidator<OrderUpdateRequest> orderUpdaterequestValidator, IorderRepository iorderRepository, IMapper mapper, UsersMicroServiceClint usersMicroService)
+    public OrderService(
+        IValidator<OrderAddRequest> orderAddrequestValidator,
+        IValidator<OrderItemAddRequest> orderItemAddrequestValidator,
+        IValidator<OrderItemUpdateRequest> orderItemUpdaterequestValidator,
+        IValidator<OrderUpdateRequest> orderUpdaterequestValidator,
+        IorderRepository iorderRepository,
+        IMapper mapper,
+        UsersMicroServiceClint usersMicroService)
     {
         _OrderAddrequestValidator = orderAddrequestValidator;
         _OrderItemAddrequestValidator = orderItemAddrequestValidator;
@@ -31,21 +38,22 @@ public class OrderService : IorderService
         _usersMicroServiceClinet = usersMicroService;
     }
 
-    public async Task<OrderResponse?> AddOrder(OrderAddRequest orderAddRequest)
+    public async Task<OrderResponse> AddOrder(OrderAddRequest orderAddRequest)
     {
         if (orderAddRequest == null)
         {
             throw new ArgumentNullException(nameof(orderAddRequest));
         }
 
-        // validate using fluent validation
+        // Validate using fluent validation
         ValidationResult OrderAddvalidationResult = await _OrderAddrequestValidator.ValidateAsync(orderAddRequest);
         if (!OrderAddvalidationResult.IsValid)
         {
             string error = string.Join(",", OrderAddvalidationResult.Errors.Select(temp => temp.ErrorMessage));
             throw new ArgumentException(error);
         }
-        //validate order items using fluent validation
+
+        // Validate order items
         foreach (OrderItemAddRequest orderItemAddRequest in orderAddRequest.OrderItems)
         {
             ValidationResult validationResult = await _OrderItemAddrequestValidator.ValidateAsync(orderItemAddRequest);
@@ -56,88 +64,80 @@ public class OrderService : IorderService
             }
         }
 
-        //TO DO: Add logic for checking if UserID exists in Users microservice
-        // beacuse all data manage by another microservice sooooo we need to check if the user exists or not
+        // Check if user exists
         UserDTO? user = await _usersMicroServiceClinet.GetUserByUserId(orderAddRequest.UserId);
         if (user == null)
         {
             throw new ArgumentException("Invalid user Id");
         }
 
-
         Order orderInput = _mapper.Map<Order>(orderAddRequest);
-        // genrate total value 
+
+        // Calculate total values
         foreach (OrderItem orderItem in orderInput.OrderItems)
         {
-            orderItem.TotalPrice = (double)(orderItem.Quantity * orderItem.UnitPrice);
+            orderItem.TotalPrice = orderItem.Quantity * orderItem.UnitPrice;
         }
-        orderInput.TotalBill = (decimal)orderInput.OrderItems.Sum(temp => temp.TotalPrice);
-        //Invoke repository
-        Order? addedOrder = await _iorderRepository.AddOrder(orderInput);
+
+        orderInput.TotalBill = orderInput.OrderItems.Sum(temp => temp.TotalPrice);
+
+        // Add order
+        Order addedOrder = await _iorderRepository.AddOrder(orderInput);
 
         if (addedOrder == null)
         {
             return null;
         }
-        //Map addedOrder ('Order' type) into 'OrderResponse' type (it invokes OrderToOrderResponseMappingProfile).
-        OrderResponse addedOrderResponse = _mapper.Map<OrderResponse>(addedOrder);
 
+        // Map to response
+        OrderResponse addedOrderResponse = _mapper.Map<OrderResponse>(addedOrder);
         return addedOrderResponse;
     }
 
-
     public async Task<bool> DeleteOrder(Guid orderID)
     {
-        FilterDefinition<Order> Filter = Builders<Order>.Filter.Eq(temp => temp.OrderID, orderID);
-        Order? exitingOrder = await _iorderRepository.GetOrderByCondition(Filter);
-        if (exitingOrder == null)
-        {
-            return false;
-        }
-
-        bool isDeleted = await _iorderRepository.DeleteOrder(orderID);
-        return isDeleted;
+        return await _iorderRepository.DeleteOrder(orderID);
     }
 
-    public async Task<OrderResponse?> GetOrderByCondition(FilterDefinition<Order> filter)
+    public async Task<OrderResponse> GetOrderByCondition(Expression<Func<Order, bool>> predicate)
     {
-        Order? order = await _iorderRepository.GetOrderByCondition(filter);
+        Order order = await _iorderRepository.GetOrderByCondition(predicate);
         if (order == null)
         {
             return null;
         }
 
-        OrderResponse? response = _mapper.Map<OrderResponse?>(order);
+        OrderResponse response = _mapper.Map<OrderResponse>(order);
         return response;
     }
 
-    public async Task<List<OrderResponse?>> GetOrders()
+    public async Task<List<OrderResponse>> GetOrders()
     {
         IEnumerable<Order> orders = await _iorderRepository.GetOrders();
-        IEnumerable<OrderResponse?> OrderResponse = _mapper.Map<IEnumerable<OrderResponse?>>(orders);
-        return OrderResponse.ToList();
+        IEnumerable<OrderResponse> orderResponses = _mapper.Map<IEnumerable<OrderResponse>>(orders);
+        return orderResponses.ToList();
     }
 
-    public async Task<List<OrderResponse?>> GetOrdersByCondition(FilterDefinition<Order> filter)
+    public async Task<List<OrderResponse>> GetOrdersByCondition(Expression<Func<Order, bool>> predicate)
     {
-        IEnumerable<Order?> order = await _iorderRepository.GetOrdersByCondition(filter);
-        if (order == null)
+        IEnumerable<Order> orders = await _iorderRepository.GetOrdersByCondition(predicate);
+        if (orders == null)
         {
             return null;
         }
 
-        IEnumerable<OrderResponse?> Response = _mapper.Map<IEnumerable<OrderResponse>>(order);
-        return Response.ToList();
+        IEnumerable<OrderResponse> responses = _mapper.Map<IEnumerable<OrderResponse>>(orders);
+        return responses.ToList();
     }
 
-    public async Task<OrderResponse?> UpdateOrder(OrderUpdateRequest orderUpdateRequest)
+    public async Task<OrderResponse> UpdateOrder(OrderUpdateRequest orderUpdateRequest)
     {
         if (orderUpdateRequest == null)
         {
             throw new ArgumentException(nameof(orderUpdateRequest));
         }
 
-        // validate the orderupdate request
+        // Validate the orderupdate request
         ValidationResult OrderUpdatevalidationResult = await _OrderUpdaterequestValidator.ValidateAsync(orderUpdateRequest);
         if (!OrderUpdatevalidationResult.IsValid)
         {
@@ -145,7 +145,7 @@ public class OrderService : IorderService
             throw new ArgumentException(error);
         }
 
-        //inside the orderupdate request validate the order item update item request
+        // Validate order items
         foreach (OrderItemUpdateRequest updateRequest in orderUpdateRequest.OrderItems)
         {
             ValidationResult OrderItemUpdateResult = await _OrderItemUpdaterequestValidator.ValidateAsync(updateRequest);
@@ -156,30 +156,33 @@ public class OrderService : IorderService
             }
         }
 
-        //TO DO: Add logic for checking if UserID exists in Users microservice
-        UserDTO? user = await _usersMicroServiceClinet.GetUserByUserId(orderUpdateRequest.UserID);
+        // Check if user exists
+        UserDTO user = await _usersMicroServiceClinet.GetUserByUserId(orderUpdateRequest.UserID);
         if (user == null)
         {
             throw new ArgumentException("Invalid user Id");
         }
 
+        Order orderInput = _mapper.Map<Order>(orderUpdateRequest);
 
-        Order OrderInput = _mapper.Map<Order>(orderUpdateRequest);
-
-        // Genrate total value
-        foreach (OrderItem orderItem in OrderInput.OrderItems)
+        // Calculate total values
+        foreach (OrderItem orderItem in orderInput.OrderItems)
         {
-            orderItem.TotalPrice = (double)(orderItem.Quantity * orderItem.UnitPrice);
+            orderItem.TotalPrice = orderItem.Quantity * orderItem.UnitPrice;
         }
-        OrderInput.TotalBill = (decimal)OrderInput.OrderItems.Sum(temp => temp.TotalPrice);
 
-        //Invoke repository
-        Order? OrderRepository = await _iorderRepository.UpdateOrder(OrderInput);
-        if (OrderRepository == null)
+        orderInput.TotalBill = orderInput.OrderItems.Sum(temp => temp.TotalPrice);
+
+        // Update order
+        Order updatedOrder = await _iorderRepository.UpdateOrder(orderInput);
+
+        if (updatedOrder == null)
         {
             return null;
         }
-        OrderResponse orderUpdateResponse = _mapper.Map<OrderResponse>(OrderRepository);
+
+        // Map to response
+        OrderResponse orderUpdateResponse = _mapper.Map<OrderResponse>(updatedOrder);
         return orderUpdateResponse;
     }
 }

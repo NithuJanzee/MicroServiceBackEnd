@@ -1,0 +1,42 @@
+version: '3.4'
+
+services:
+  ordersmicroservice.api:
+    image: ordersmicroserviceapi
+    build:
+      context: .
+      dockerfile: OrdersMicroservice.API/Dockerfile
+    ports:
+     - "7000:8080"
+    networks:
+      - products-microservice-network
+
+  mysql-container:
+    image: mysql:9.2.0
+    environment:
+      MYSQL_ROOT_PASSWORD: "261412"
+    ports:
+      - "3306:3306"
+    volumes:
+      - ../eCommerce/mysql-init:/docker-entrypoint-initdb.d 
+    networks:
+      - products-microservice-network
+    hostname: mysql-host-productsmicroservice
+
+  postgres-container:
+    image: postgres:17.4
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "261412"
+      POSTGRES_DB: eCommerceUsers
+    ports:
+      - "5432:5432"
+    volumes:
+      - ../eCommerce/postgres-init:/docker-entrypoint-initdb.d
+    networks:
+      - ecommerce-network
+networks:
+  products-microservice-network:
+    driver: bridge
+  ecommerce-network:  
+    driver: bridge

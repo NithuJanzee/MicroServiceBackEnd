@@ -5,9 +5,6 @@
             "launchBrowser": true,
             "environmentVariables": {
                 "ASPNETCORE_ENVIRONMENT": "Development",
-                "MONGODB_HOST": "localhost",
-                "MONGODB_PORT": "27017",
-                "MONGODB_DATABASE": "OrdersDatabase",
                 "UsersMicroserviceName": "localhost",
                 "UsersMicroservicePort": "9090"
             },
@@ -20,9 +17,6 @@
             "launchBrowser": true,
             "environmentVariables": {
                 "ASPNETCORE_ENVIRONMENT": "Development",
-                "MONGODB_HOST": "localhost",
-                "MONGODB_PORT": "27017",
-                "MONGODB_DATABASE": "OrdersDatabase",
                 "UsersMicroserviceName": "localhost",
                 "UsersMicroservicePort": "9090"
             },
@@ -35,7 +29,6 @@
             "launchBrowser": true,
             "environmentVariables": {
                 "ASPNETCORE_ENVIRONMENT": "Development",
-                "MONGODB_DATABASE": "OrdersDatabase",
                 "UsersMicroserviceName": "localhost",
                 "UsersMicroservicePort": "9090"
             }
@@ -47,7 +40,6 @@
             "environmentVariables": {
                 "ASPNETCORE_HTTPS_PORTS": "8081",
                 "ASPNETCORE_HTTP_PORTS": "8080",
-                "MONGODB_DATABASE": "OrdersDatabase",
                 "UsersMicroserviceName": "localhost",
                 "UsersMicroservicePort": "9090"
             },

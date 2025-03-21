@@ -1,19 +1,19 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using MongoDB.Bson.Serialization.Attributes;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace eCommerce.OrderMicroservice.DataAccessLayer.Entity;
 
 public class OrderItem
 {
-    [BsonId]
-    [BsonRepresentation(MongoDB.Bson.BsonType.String)]
-    public Guid _Id { get; set; }
-    [BsonRepresentation(MongoDB.Bson.BsonType.String)]
+
+    [Key]
+    public Guid OrderItemID { get; set; }
     public Guid ProductID { get; set; }
-    [BsonRepresentation(MongoDB.Bson.BsonType.Double)]
     public decimal UnitPrice { get; set; }
-    [BsonRepresentation(MongoDB.Bson.BsonType.Int32)]
     public int Quantity { get; set; }
-    [BsonRepresentation(MongoDB.Bson.BsonType.Double)]
-    public double TotalPrice { get; set; }
+    public decimal TotalPrice { get; set; }
+
+    public Guid OrderID { get; set; }
+    [ForeignKey("OrderID")]
+    public virtual Order Order { get; set; }
 }
